@@ -25,10 +25,10 @@ void main( int argc, char *argv[])
     while ((c = getopt (argc, argv, "p:i:")) != -1) {
         switch (c) {
             case 'i':
-            snprintf(server_ip,IP_SIZE,"%s",optarg);
+            snprintf(server_ip, IP_SIZE, "%s", optarg);
             break;
         case 'p':
-            snprintf(server_port_number,PORT_SIZE,"%s",optarg);
+            snprintf(server_port_number, PORT_SIZE, "%s", optarg);
             uint_spn = atoi(server_port_number);
             break;
         case '?':
