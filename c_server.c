@@ -18,8 +18,6 @@ void main(int argc, char *argv[])
     char buffer[BUFF_SIZE];
     char server_port_no[PORT_SIZE + 1] = {0};
     unsigned int uint_serv_port_num;
-    char *opt;
-    opt = "eth0";
 
     int c;
 
@@ -36,13 +34,9 @@ void main(int argc, char *argv[])
     }
 
     servsock = socket(AF_INET, SOCK_DGRAM, 0);
-
-    //setsockopt(servsock, SOCK_DGRAM, SO_BINDTODEVICE, opt, 4);
-
     myaddr.sin_family = AF_INET;
     myaddr.sin_port = htons(uint_serv_port_num);
     inet_pton(AF_INET, "192.168.8.99", &(myaddr.sin_addr));
-
     //myaddr.sin_addr.s_addr = INADDR_ANY;
     if (bind(servsock, (struct sockaddr *) &myaddr, sizeof(myaddr)) < 0) {
         printf("Error on binding\n");
