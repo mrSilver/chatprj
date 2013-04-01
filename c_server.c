@@ -6,9 +6,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <netdb.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
 #define BUFF_SIZE 65507
 #define PORT_SIZE 6
+#define IFACE_SIZE 15 //size of network interface name
 
 
 void main(int argc, char *argv[])
@@ -18,16 +20,17 @@ void main(int argc, char *argv[])
     char buffer[BUFF_SIZE];
     char server_port_no[PORT_SIZE + 1] = {0};
     unsigned int uint_serv_port_num;
-    char *opt;
-    opt = "eth0";
-
+    char iface[IFACE_SIZE + 1];
     int c;
 
-    while ((c = getopt (argc, argv, "p:")) != -1) {
+    while ((c = getopt (argc, argv, "p:i:")) != -1) {
         switch (c) {
             case 'p':
                 snprintf(server_port_no, PORT_SIZE, "%s", optarg);
                 uint_serv_port_num = atoi(server_port_no);
+                break;
+            case 'i':
+                snprintf(iface, IFACE_SIZE, "%s", optarg);
                 break;
             case '?':
                 fprintf(stderr, "Unrecognized option!\n");
@@ -37,12 +40,17 @@ void main(int argc, char *argv[])
 
     servsock = socket(AF_INET, SOCK_DGRAM, 0);
 
-    //setsockopt(servsock, SOCK_DGRAM, SO_BINDTODEVICE, opt, 4);
+    struct ifreq ifr;
+    ifr.ifr_addr.sa_family = AF_INET;
+    strncpy(ifr.ifr_name, iface, IFNAMSIZ-1);
+    ioctl(servsock, SIOCGIFADDR, &ifr);
+    char *ipaddr;
+    ipaddr = inet_ntoa(( (struct sockaddr_in *) &ifr.ifr_addr)->sin_addr);
+    printf("%s - %s\n", iface, ipaddr);
 
     myaddr.sin_family = AF_INET;
     myaddr.sin_port = htons(uint_serv_port_num);
-    inet_pton(AF_INET, "192.168.8.99", &(myaddr.sin_addr));
-
+    inet_pton(AF_INET, ipaddr, &(myaddr.sin_addr));
     //myaddr.sin_addr.s_addr = INADDR_ANY;
     if (bind(servsock, (struct sockaddr *) &myaddr, sizeof(myaddr)) < 0) {
         printf("Error on binding\n");
