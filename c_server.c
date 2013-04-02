@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
+#include <signal.h>
+#include "sig_handler.h"
 #define BUFF_SIZE 65507
 #define PORT_SIZE 6
 #define IFACE_SIZE 15 //size of network interface name
@@ -15,6 +17,9 @@
 
 void main(int argc, char *argv[])
 {
+    if (signal(SIGINT, sig_handler) == SIG_ERR) {
+        printf("\nSmth happened, cant catch SIGINT\n");
+    }
     struct sockaddr_in myaddr;
     int servsock,clisock;
     char buffer[BUFF_SIZE];
