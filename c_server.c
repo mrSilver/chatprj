@@ -9,17 +9,23 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <signal.h>
-#include "sig_handler.h"
 #define BUFF_SIZE 65507
 #define PORT_SIZE 6
 #define IFACE_SIZE 15 //size of network interface name
 
+volatile sig_atomic_t stop = 0;
 
-void main(int argc, char *argv[])
+void sig_handler(int signo)
 {
-    if (signal(SIGINT, sig_handler) == SIG_ERR) {
-        printf("\nSmth happened, cant catch SIGINT\n");
-    }
+   stop = 1;
+   /*if (signo == SIGINT) {
+   printf("\nSIGNAL CAUGHT\nstop = %d",stop);
+   }*/
+}
+
+int main(int argc, char *argv[])
+{
+
     struct sockaddr_in myaddr;
     int servsock,clisock;
     char buffer[BUFF_SIZE];
@@ -66,8 +72,13 @@ void main(int argc, char *argv[])
     char *some_addr;
     some_addr = inet_ntoa(myaddr.sin_addr);
     printf("%s\n", some_addr);
-    while (1) {
+
+    signal(SIGINT, sig_handler);
+
+    while (!stop) {
          recvfrom(servsock, buffer, sizeof(buffer), 0, (struct sockaddr *) NULL, NULL);
          printf("\nClient:%s", buffer);
     }
+    printf("loop has been left!");
+    return 0;
 }

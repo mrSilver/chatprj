@@ -6,9 +6,17 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <signal.h>
 #define BUFF_SIZE 65507
 #define PORT_SIZE 6
 #define IP_SIZE 16
+
+volatile sig_atomic_t stop = 0;
+
+void sig_handler(int signo)
+{
+    stop = 1;
+}
 
 void main( int argc, char *argv[])
 {
@@ -55,9 +63,11 @@ void main( int argc, char *argv[])
 
     printf("\nClient ready....\n");
     length = sizeof(server);
-    while (1) {
+    signal(SIGINT, sig_handler);
+    while (!stop) {
         printf("\nClient:");
         fgets(buffer, BUFF_SIZE - 1, stdin);
         sendto(udp_socket, buffer, sizeof(buffer), 0, (struct sockaddr *) &server, length);
     }
+    printf("Signal received, exiting...\n");
 }
