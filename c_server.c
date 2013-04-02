@@ -78,8 +78,8 @@ int main(int argc, char *argv[])
     fd_set rfds;
     FD_ZERO(&rfds);
     struct timeval tv;
-    tv.tv_sec = 1;
-    tv.tv_usec = 0;
+    tv.tv_sec = 0;
+    tv.tv_usec = 100;
     int retval;
 
     int counter = 0;
@@ -127,13 +127,16 @@ int main(int argc, char *argv[])
     while (!stop) {
         int ctr1 = 0;
         FD_ZERO(&rfds);
-        FD_SET(sockfds[0], &rfds);
+        int ctr2 = 0;
+        for (ctr2 = 0; ctr2 < ports_count; ctr2++) {
+            FD_SET(sockfds[ctr2], &rfds);
+        }
         retval = select( max_fd, &rfds, NULL, NULL, &tv);
         if (retval < 0) {
             printf("\nSelect thrown an exception\n");
             return 0;
         }
-        for (ctr1 = 1; ctr1 < ports_count; ctr1++) {
+        for (ctr1 = 0; ctr1 < ports_count; ctr1++) {
             if (FD_ISSET(sockfds[ctr1], &rfds)) {
                 recvfrom(sockfds[ctr1], buffer, sizeof(buffer), 0, (struct sockaddr *) NULL, NULL);
                 printf("\nClient[%d]:%s", ctr1, buffer);
