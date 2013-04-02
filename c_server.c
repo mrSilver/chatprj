@@ -25,7 +25,6 @@ void sig_handler(int signo)
 
 int main(int argc, char *argv[])
 {
-
     struct sockaddr_in myaddr;
     int servsock,clisock;
     char buffer[BUFF_SIZE];

@@ -12,6 +12,9 @@ c_client.o: c_client.c
 c_server.o: c_server.c
 	gcc -c c_server.c
 
+sig_handler.o: sig_handler.c
+	gcc -c sig_handler.c
+
 clean:
 	rm *.o c_client c_server
 
